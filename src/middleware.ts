@@ -1,33 +1,27 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { auth0 } from "./lib/auth0";
+import { withAuth } from 'next-auth/middleware'
 
-export async function middleware(request: NextRequest) {
-  try {
-    return await auth0.middleware(request);
-  } catch (error) {
-    // Handle JWE Invalid errors by clearing auth cookies and proceeding
-    if (error instanceof Error && error.message.includes('Invalid Compact JWE')) {
-      console.log('Clearing invalid Auth0 session cookies');
-      const response = NextResponse.next();
-      // Clear Auth0 cookies that might be corrupted
-      response.cookies.delete('auth0.session');
-      response.cookies.delete('auth0.is'); 
-      response.cookies.delete('a0_state');
-      return response;
-    }
-    throw error;
+export default withAuth(
+  function middleware() {
+    // Add any additional middleware logic here
+  },
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
   }
-}
+)
 
 export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
+     * - api/auth (auth routes) 
+     * - api/graphql (GraphQL endpoint)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     * - / (home page - allow access without auth)
      */
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)"
+    "/((?!api/auth|api/graphql|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|$).*)"
   ]
 };

@@ -1,6 +1,6 @@
 'use client'
 
-import { useUser } from '@auth0/nextjs-auth0'
+import { useSession, signOut } from 'next-auth/react'
 import { useQuery } from '@apollo/client'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -14,7 +14,9 @@ import Link from 'next/link'
 import StatsCharts from '@/components/StatsCharts'
 
 export default function Dashboard() {
-  const { user, isLoading: authLoading } = useUser()
+  const { data: session, status } = useSession()
+  const user = session?.user
+  const authLoading = status === 'loading'
   const router = useRouter()
   
   const { data: userData, loading: userLoading } = useQuery(GET_ME, { skip: !user })
@@ -86,9 +88,9 @@ export default function Dashboard() {
               <span className="text-sm text-gray-600">
                 {userData.me.name || userData.me.email}
               </span>
-              <a href="/api/auth/logout">
-                <Button variant="ghost">Sign Out</Button>
-              </a>
+              <Button variant="ghost" onClick={() => signOut()}>
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>

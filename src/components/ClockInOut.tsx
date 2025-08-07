@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
-import { useUser } from '@auth0/nextjs-auth0'
+import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { useAppContext } from '@/contexts/AppContext'
+import { useToast } from '@/contexts/ToastContext'
 import { CLOCK_IN, CLOCK_OUT } from '@/lib/graphql/mutations'
 import { GET_CURRENT_SHIFT, GET_ORGANIZATIONS, IS_WITHIN_PERIMETER } from '@/lib/graphql/queries'
 import { Clock, MapPin, AlertCircle } from 'lucide-react'
@@ -23,8 +24,10 @@ interface Organization {
 }
 
 export default function ClockInOut() {
-  const { user } = useUser()
+  const { data: session } = useSession()
+  const user = session?.user
   const { state } = useAppContext()
+  const { success, error } = useToast()
   const [note, setNote] = useState('')
   const [selectedOrgId, setSelectedOrgId] = useState('')
   const [withinPerimeter, setWithinPerimeter] = useState<boolean | null>(null)
@@ -36,15 +39,18 @@ export default function ClockInOut() {
   const { data: organizationsData } = useQuery(GET_ORGANIZATIONS)
 
   const [clockInMutation, { loading: clockingIn }] = useMutation(CLOCK_IN, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       setNote('')
+      success(`Successfully clocked in at ${data.clockIn.organization.name}!`)
       refetchCurrentShift()
     },
   })
 
   const [clockOutMutation, { loading: clockingOut }] = useMutation(CLOCK_OUT, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       setNote('')
+      const totalHours = data.clockOut.totalHours ? ` Total hours: ${data.clockOut.totalHours.toFixed(1)}h` : ''
+      success(`Successfully clocked out from ${data.clockOut.organization.name}!${totalHours}`)
       refetchCurrentShift()
     },
   })
@@ -71,13 +77,13 @@ export default function ClockInOut() {
   }, [selectedOrgId, state.location.latitude, state.location.longitude, checkPerimeter])
 
   const handleClockIn = async () => {
-    if (!selectedOrgId || !state.location.latitude || !state.location.longitude) {
-      alert('Please select an organization and enable location access')
+    if (!selectedOrgId) {
+      error('Please select an organization')
       return
     }
 
     if (withinPerimeter === false) {
-      alert('You are outside the allowed perimeter for this location')
+      error('You are outside the allowed perimeter for this location. Please move closer to the workplace or contact your manager.')
       return
     }
 
@@ -86,22 +92,23 @@ export default function ClockInOut() {
         variables: {
           input: {
             organizationId: selectedOrgId,
-            latitude: state.location.latitude,
-            longitude: state.location.longitude,
+            latitude: state.location.latitude || 0.0,
+            longitude: state.location.longitude || 0.0,
             note: note.trim() || undefined,
           },
         },
       })
-      alert('Successfully clocked in!')
-    } catch (error) {
-      console.error('Clock in error:', error)
-      alert('Failed to clock in. Please try again.')
+      // Success handled in onCompleted
+    } catch (err: any) {
+      console.error('Clock in error:', err)
+      console.error('Error details:', JSON.stringify(err, null, 2))
+      error(`Failed to clock in: ${err.message || 'Please try again.'}`)
     }
   }
 
   const handleClockOut = async () => {
     if (!currentShiftData?.currentShift) {
-      alert('No active shift found')
+      error('No active shift found')
       return
     }
 
@@ -110,16 +117,16 @@ export default function ClockInOut() {
         variables: {
           input: {
             shiftId: currentShiftData.currentShift.id,
-            latitude: state.location.latitude,
-            longitude: state.location.longitude,
+            latitude: state.location.latitude || 0.0,
+            longitude: state.location.longitude || 0.0,
             note: note.trim() || undefined,
           },
         },
       })
-      alert('Successfully clocked out!')
-    } catch (error) {
-      console.error('Clock out error:', error)
-      alert('Failed to clock out. Please try again.')
+      // Success handled in onCompleted
+    } catch (err: any) {
+      console.error('Clock out error:', err)
+      error(`Failed to clock out: ${err.message || 'Please try again.'}`)
     }
   }
 
@@ -134,9 +141,9 @@ export default function ClockInOut() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <a href="/api/auth/login">
-              <Button className="w-full">Sign In</Button>
-            </a>
+            <Button className="w-full" onClick={() => signIn('google')}>
+              Sign In
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -243,18 +250,26 @@ export default function ClockInOut() {
               </select>
               
               {selectedOrgId && state.location.latitude && state.location.longitude && (
-                <div className="mt-2">
+                <div className="mt-2 space-y-1">
                   {withinPerimeter === null ? (
-                    <div className="text-sm text-gray-500">Checking location perimeter...</div>
+                    <div className="flex items-center gap-2 text-yellow-600 text-sm">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                      Checking location...
+                    </div>
                   ) : withinPerimeter ? (
                     <div className="flex items-center gap-2 text-green-600 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       Within allowed area
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      Outside allowed area - cannot clock in
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-red-600 text-sm">
+                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                        Outside allowed perimeter
+                      </div>
+                      <div className="text-xs text-gray-500 ml-4">
+                        Your location: {state.location.latitude.toFixed(4)}, {state.location.longitude.toFixed(4)}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -279,9 +294,7 @@ export default function ClockInOut() {
             disabled={
               clockingIn || 
               clockingOut || 
-              (!isCurrentlyWorking && (!selectedOrgId || withinPerimeter === false)) ||
-              !state.location.latitude ||
-              !state.location.longitude
+              (!isCurrentlyWorking && (!selectedOrgId || withinPerimeter === false))
             }
             className="w-full"
             variant={isCurrentlyWorking ? "destructive" : "default"}

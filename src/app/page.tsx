@@ -1,6 +1,6 @@
 'use client'
 
-import { useUser } from '@auth0/nextjs-auth0'
+import { useSession, signIn, signOut } from 'next-auth/react'
 import { useQuery } from '@apollo/client'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -10,7 +10,9 @@ import { Clock, Users, BarChart } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Home() {
-  const { user, isLoading } = useUser()
+  const { data: session, status } = useSession()
+  const user = session?.user
+  const isLoading = status === 'loading'
   const { data: userData } = useQuery(GET_ME, { skip: !user })
 
   if (isLoading) {
@@ -37,11 +39,9 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <a href="/api/auth/login">
-                <Button size="lg" className="w-full sm:w-auto">
-                  Get Started
-                </Button>
-              </a>
+              <Button size="lg" className="w-full sm:w-auto" onClick={() => signIn('google')}>
+                Get Started
+              </Button>
               <Link href="#features">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   Learn More
@@ -121,11 +121,9 @@ export default function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <a href="/api/auth/login">
-                  <Button size="lg" className="w-full">
-                    Sign In with Auth0
-                  </Button>
-                </a>
+                <Button size="lg" className="w-full" onClick={() => signIn('google')}>
+                  Sign In with Google
+                </Button>
                 <p className="text-sm text-gray-500 mt-4">
                   Secure authentication with Google and email login options
                 </p>
@@ -137,10 +135,8 @@ export default function Home() {
     )
   }
 
-  const isManager = userData?.me?.role === 'MANAGER'
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <header className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
@@ -148,11 +144,6 @@ export default function Home() {
               Healthcare Shift Tracker
             </h1>
             <div className="flex items-center gap-4">
-              {isManager && (
-                <Link href="/dashboard">
-                  <Button variant="outline">Manager Dashboard</Button>
-                </Link>
-              )}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600">
                   {userData?.me?.name || userData?.me?.email}
@@ -161,26 +152,99 @@ export default function Home() {
                   {userData?.me?.role?.toLowerCase().replace('_', ' ')}
                 </span>
               </div>
-              <a href="/api/auth/logout">
-                <Button variant="ghost">Sign Out</Button>
-              </a>
+              <Button variant="ghost" onClick={() => signOut()}>
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome back, {userData?.me?.name?.split(' ')[0] || 'User'}!
+      <main className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Welcome, {userData?.me?.name?.split(' ')[0] || 'User'}!
             </h2>
-            <p className="text-gray-600">
-              Track your shifts and manage your work hours efficiently.
+            <p className="text-xl text-gray-600 mb-8">
+              Choose your workspace to get started
             </p>
           </div>
 
-          <ClockInOut />
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+            {/* Manager Card */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/manager'}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 justify-center text-xl">
+                  <Users className="h-6 w-6 text-blue-600" />
+                  Manager Dashboard
+                </CardTitle>
+                <CardDescription className="text-center">
+                  Manage staff, set locations, and view analytics
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Set location perimeter (geofence) for clock-ins
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    View who is currently clocked in
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    See detailed clock-in/out records
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    Access analytics and reports
+                  </div>
+                </div>
+                <Button className="w-full mt-6">
+                  Access Manager Dashboard
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Care Worker Card */}
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/care-worker'}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 justify-center text-xl">
+                  <Clock className="h-6 w-6 text-green-600" />
+                  Care Worker Portal
+                </CardTitle>
+                <CardDescription className="text-center">
+                  Clock in/out and manage your shifts
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    Clock in and out within allowed perimeter
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    Provide optional notes when clocking
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    View your own clock-in/out history
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    Get location-based notifications
+                  </div>
+                </div>
+                <Button className="w-full mt-6" variant="outline">
+                  Access Care Worker Portal
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
     </div>

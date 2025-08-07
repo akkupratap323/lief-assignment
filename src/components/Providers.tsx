@@ -1,9 +1,10 @@
 'use client'
 
-import { Auth0Provider } from '@auth0/nextjs-auth0'
+import { SessionProvider } from 'next-auth/react'
 import { ApolloProvider } from '@apollo/client'
 import { apolloClient } from '@/lib/apollo-client'
 import { AppProvider } from '@/contexts/AppContext'
+import { ToastProvider } from '@/contexts/ToastContext'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -11,12 +12,14 @@ interface ProvidersProps {
 
 export function Providers({ children }: ProvidersProps) {
   return (
-    <Auth0Provider>
+    <SessionProvider>
       <ApolloProvider client={apolloClient}>
         <AppProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </AppProvider>
       </ApolloProvider>
-    </Auth0Provider>
+    </SessionProvider>
   )
 }

@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
-import { getSession } from '@auth0/nextjs-auth0/server'
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth'
 import { GraphQLScalarType, Kind } from 'graphql'
 
 const dateTimeScalar = new GraphQLScalarType({
@@ -33,22 +34,22 @@ export const resolvers = {
   DateTime: dateTimeScalar,
   
   Query: {
-    me: async (_: any, __: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    me: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) return null
       
       return await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub },
+        where: { auth0Id: session.user.email || '' },
         include: { shifts: true }
       })
     },
 
-    currentShift: async (_: any, __: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    currentShift: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user) throw new Error('User not found')
@@ -62,12 +63,12 @@ export const resolvers = {
       })
     },
 
-    myShifts: async (_: any, __: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    myShifts: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user) throw new Error('User not found')
@@ -79,12 +80,12 @@ export const resolvers = {
       })
     },
 
-    allActiveShifts: async (_: any, __: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    allActiveShifts: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user || user.role !== 'MANAGER') {
@@ -98,12 +99,12 @@ export const resolvers = {
       })
     },
 
-    allShifts: async (_: any, __: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    allShifts: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user || user.role !== 'MANAGER') {
@@ -129,12 +130,12 @@ export const resolvers = {
       })
     },
 
-    dashboardStats: async (_: any, __: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    dashboardStats: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user || user.role !== 'MANAGER') {
@@ -190,25 +191,41 @@ export const resolvers = {
       if (!org) return false
 
       const distance = calculateDistance(latitude, longitude, org.latitude, org.longitude)
-      return distance <= org.radiusKm
+      
+      // Debug logging
+      console.log('Perimeter Check Debug:', {
+        organizationId,
+        userLocation: { latitude, longitude },
+        orgLocation: { latitude: org.latitude, longitude: org.longitude },
+        calculatedDistance: distance,
+        allowedRadius: org.radiusKm,
+        isWithin: distance <= org.radiusKm
+      })
+      
+      // Add a small buffer (100 meters) for GPS accuracy issues
+      const bufferKm = 0.1 // 100 meters buffer
+      return distance <= (org.radiusKm + bufferKm)
     }
   },
 
   Mutation: {
-    clockIn: async (_: any, { input }: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    clockIn: async (_: any, { input }: any) => {
+      console.log('ClockIn mutation called with input:', input)
+      const session = await getServerSession(authOptions)
+      console.log('Session:', session)
       if (!session?.user) throw new Error('Not authenticated')
 
       let user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
+      console.log('Found user:', user)
 
       if (!user) {
         user = await prisma.user.create({
           data: {
-            auth0Id: session.user.sub,
-            email: session.user.email,
-            name: session.user.name,
+            auth0Id: session.user.email || '',
+            email: session.user.email || '',
+            name: session.user.name || undefined,
             role: 'CARE_WORKER'
           }
         })
@@ -225,11 +242,11 @@ export const resolvers = {
         throw new Error('Already clocked in')
       }
 
+      // Location validation
       if (input.latitude && input.longitude) {
         const org = await prisma.organization.findUnique({
           where: { id: input.organizationId }
         })
-
         if (org) {
           const distance = calculateDistance(
             input.latitude, 
@@ -237,9 +254,19 @@ export const resolvers = {
             org.latitude, 
             org.longitude
           )
-
-          if (distance > org.radiusKm) {
-            throw new Error('Outside allowed perimeter')
+          
+          // Add a small buffer (100 meters) for GPS accuracy issues
+          const bufferKm = 0.1 // 100 meters buffer
+          
+          console.log('Clock-in Location Validation:', {
+            distance,
+            allowedRadius: org.radiusKm,
+            withBuffer: org.radiusKm + bufferKm,
+            isAllowed: distance <= (org.radiusKm + bufferKm)
+          })
+          
+          if (distance > (org.radiusKm + bufferKm)) {
+            throw new Error(`Outside allowed perimeter. You are ${distance.toFixed(2)}km away from the location (allowed: ${org.radiusKm}km)`)
           }
         }
       }
@@ -260,12 +287,12 @@ export const resolvers = {
       return shift
     },
 
-    clockOut: async (_: any, { input }: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    clockOut: async (_: any, { input }: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user) throw new Error('User not found')
@@ -301,12 +328,12 @@ export const resolvers = {
       return updatedShift
     },
 
-    createOrganization: async (_: any, { input }: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    createOrganization: async (_: any, { input }: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const user = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!user || user.role !== 'MANAGER') {
@@ -319,18 +346,18 @@ export const resolvers = {
           address: input.address,
           latitude: input.latitude,
           longitude: input.longitude,
-          radiusKm: input.radiusKm || 2.0
+          radiusKm: input.radiusKm || 5.0 // Increased default radius to 5km
         },
         include: { shifts: true }
       })
     },
 
-    updateUserRole: async (_: any, { userId, role }: any, { req, res }: any) => {
-      const session = await getSession(req, res)
+    updateUserRole: async (_: any, { userId, role }: any) => {
+      const session = await getServerSession(authOptions)
       if (!session?.user) throw new Error('Not authenticated')
 
       const currentUser = await prisma.user.findUnique({
-        where: { auth0Id: session.user.sub }
+        where: { auth0Id: session.user.email || '' }
       })
 
       if (!currentUser || currentUser.role !== 'MANAGER') {
@@ -341,6 +368,60 @@ export const resolvers = {
         where: { id: userId },
         data: { role },
         include: { shifts: true }
+      })
+    },
+
+    updateOrganization: async (_: any, { id, input }: any) => {
+      const session = await getServerSession(authOptions)
+      if (!session?.user) throw new Error('Not authenticated')
+
+      const user = await prisma.user.findUnique({
+        where: { auth0Id: session.user.email || '' }
+      })
+
+      if (!user || user.role !== 'MANAGER') {
+        throw new Error('Manager access required')
+      }
+
+      return await prisma.organization.update({
+        where: { id },
+        data: {
+          name: input.name,
+          address: input.address,
+          latitude: input.latitude,
+          longitude: input.longitude,
+          radiusKm: input.radiusKm
+        },
+        include: { shifts: true }
+      })
+    },
+
+    deleteOrganization: async (_: any, { id }: any) => {
+      const session = await getServerSession(authOptions)
+      if (!session?.user) throw new Error('Not authenticated')
+
+      const user = await prisma.user.findUnique({
+        where: { auth0Id: session.user.email || '' }
+      })
+
+      if (!user || user.role !== 'MANAGER') {
+        throw new Error('Manager access required')
+      }
+
+      // Check if organization has active shifts
+      const activeShifts = await prisma.shift.count({
+        where: { 
+          organizationId: id,
+          status: 'CLOCKED_IN'
+        }
+      })
+
+      if (activeShifts > 0) {
+        throw new Error('Cannot delete organization with active shifts')
+      }
+
+      return await prisma.organization.delete({
+        where: { id }
       })
     }
   }

@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useReducer, useEffect } from 'react'
-import { useUser } from '@auth0/nextjs-auth0'
+import { useSession } from 'next-auth/react'
 
 interface User {
   id: string
@@ -99,15 +99,17 @@ export const useAppContext = () => {
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState)
-  const { user: auth0User, isLoading } = useUser()
+  const { data: session, status } = useSession()
+  const auth0User = session?.user
+  const isLoading = status === 'loading'
 
   useEffect(() => {
     if (auth0User) {
       const appUser: User = {
-        id: auth0User.sub || '',
-        auth0Id: auth0User.sub || '',
+        id: auth0User.email || '',
+        auth0Id: auth0User.email || '',
         email: auth0User.email || '',
-        name: auth0User.name,
+        name: auth0User.name || undefined,
         role: 'CARE_WORKER', // Default role, will be updated from GraphQL
       }
       dispatch({ type: 'SET_USER', payload: appUser })
@@ -117,7 +119,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, [auth0User, isLoading])
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && navigator.geolocation) {
+    // Auto-detect location for all users (needed for both managers creating locations and workers clocking in)
+    if (typeof window !== 'undefined' && navigator.geolocation && auth0User) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           dispatch({
@@ -138,7 +141,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       )
     }
-  }, [])
+  }, [auth0User])
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>

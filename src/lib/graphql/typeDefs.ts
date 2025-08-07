@@ -78,6 +78,14 @@ export const typeDefs = gql`
     radiusKm: Float
   }
 
+  input UpdateOrganizationInput {
+    name: String!
+    address: String
+    latitude: Float!
+    longitude: Float!
+    radiusKm: Float
+  }
+
   type DashboardStats {
     avgHoursPerDay: Float!
     dailyClockIns: Int!
@@ -106,6 +114,8 @@ export const typeDefs = gql`
     clockIn(input: ClockInInput!): Shift!
     clockOut(input: ClockOutInput!): Shift!
     createOrganization(input: CreateOrganizationInput!): Organization!
+    updateOrganization(id: String!, input: UpdateOrganizationInput!): Organization!
+    deleteOrganization(id: String!): Organization!
     updateUserRole(userId: String!, role: UserRole!): User!
   }
 `

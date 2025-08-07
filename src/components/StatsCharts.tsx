@@ -37,10 +37,43 @@ interface DashboardStats {
 }
 
 interface StatsChartsProps {
-  stats: DashboardStats
+  stats?: DashboardStats
 }
 
 export default function StatsCharts({ stats }: StatsChartsProps) {
+  if (!stats || !stats.weeklyHoursByStaff) {
+    return (
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Weekly Hours by Staff</CardTitle>
+            <CardDescription>
+              Total hours worked by each staff member in the last week
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8 text-gray-500">
+              Loading chart data...
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Hour Distribution</CardTitle>
+            <CardDescription>
+              Breakdown of staff by weekly hour categories
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8 text-gray-500">
+              Loading chart data...
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
   const weeklyHoursData = {
     labels: stats.weeklyHoursByStaff.map(staff => staff.userName),
     datasets: [

@@ -61,3 +61,25 @@ export const UPDATE_USER_ROLE = gql`
     }
   }
 `
+
+export const UPDATE_ORGANIZATION = gql`
+  mutation UpdateOrganization($id: String!, $input: UpdateOrganizationInput!) {
+    updateOrganization(id: $id, input: $input) {
+      id
+      name
+      address
+      latitude
+      longitude
+      radiusKm
+    }
+  }
+`
+
+export const DELETE_ORGANIZATION = gql`
+  mutation DeleteOrganization($id: String!) {
+    deleteOrganization(id: $id) {
+      id
+      name
+    }
+  }
+`
