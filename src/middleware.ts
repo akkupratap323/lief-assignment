@@ -1,8 +1,22 @@
-import type { NextRequest } from "next/server";
+import type { NextRequest, NextResponse } from "next/server";
 import { auth0 } from "./lib/auth0";
 
 export async function middleware(request: NextRequest) {
-  return await auth0.middleware(request);
+  try {
+    return await auth0.middleware(request);
+  } catch (error) {
+    // Handle JWE Invalid errors by clearing auth cookies and proceeding
+    if (error instanceof Error && error.message.includes('Invalid Compact JWE')) {
+      console.log('Clearing invalid Auth0 session cookies');
+      const response = NextResponse.next();
+      // Clear Auth0 cookies that might be corrupted
+      response.cookies.delete('auth0.session');
+      response.cookies.delete('auth0.is');
+      response.cookies.delete('a0_state');
+      return response;
+    }
+    throw error;
+  }
 }
 
 export const config = {
