@@ -1,103 +1,188 @@
-import Image from "next/image";
+'use client'
+
+import { useUser } from '@auth0/nextjs-auth0/client'
+import { useQuery } from '@apollo/client'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import ClockInOut from '@/components/ClockInOut'
+import { GET_ME } from '@/lib/graphql/queries'
+import { Clock, Users, BarChart } from 'lucide-react'
+import Link from 'next/link'
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { user, isLoading } = useUser()
+  const { data: userData } = useQuery(GET_ME, { skip: !user })
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-lg">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="container mx-auto px-4 py-16">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Healthcare Shift Tracker
+            </h1>
+            <p className="text-xl text-gray-600 mb-8">
+              Streamline your healthcare workforce management with location-based shift tracking
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <a href="/api/auth/login">
+                <Button size="lg" className="w-full sm:w-auto">
+                  Get Started
+                </Button>
+              </a>
+              <Link href="#features">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                  Learn More
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          <div id="features" className="grid md:grid-cols-3 gap-8 mb-16">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Smart Clock In/Out
+                </CardTitle>
+                <CardDescription>
+                  Location-based shift tracking with perimeter checking
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm space-y-2 text-gray-600">
+                  <li>• GPS-verified clock in/out</li>
+                  <li>• Configurable location perimeters</li>
+                  <li>• Optional notes for shifts</li>
+                  <li>• Real-time status updates</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Staff Management
+                </CardTitle>
+                <CardDescription>
+                  Complete oversight of your healthcare team
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm space-y-2 text-gray-600">
+                  <li>• View all active shifts</li>
+                  <li>• Staff shift history</li>
+                  <li>• Role-based access control</li>
+                  <li>• Real-time notifications</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart className="h-5 w-5" />
+                  Analytics Dashboard
+                </CardTitle>
+                <CardDescription>
+                  Insights into your workforce patterns
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="text-sm space-y-2 text-gray-600">
+                  <li>• Average hours per day</li>
+                  <li>• Daily clock-in statistics</li>
+                  <li>• Weekly hours by staff</li>
+                  <li>• Comprehensive reporting</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="text-center">
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle>Ready to Get Started?</CardTitle>
+                <CardDescription>
+                  Join healthcare organizations using our platform to manage shifts efficiently
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <a href="/api/auth/login">
+                  <Button size="lg" className="w-full">
+                    Sign In with Auth0
+                  </Button>
+                </a>
+                <p className="text-sm text-gray-500 mt-4">
+                  Secure authentication with Google and email login options
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const isManager = userData?.me?.role === 'MANAGER'
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-900">
+              Healthcare Shift Tracker
+            </h1>
+            <div className="flex items-center gap-4">
+              {isManager && (
+                <Link href="/dashboard">
+                  <Button variant="outline">Manager Dashboard</Button>
+                </Link>
+              )}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  {userData?.me?.name || userData?.me?.email}
+                </span>
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                  {userData?.me?.role?.toLowerCase().replace('_', ' ')}
+                </span>
+              </div>
+              <a href="/api/auth/logout">
+                <Button variant="ghost">Sign Out</Button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome back, {userData?.me?.name?.split(' ')[0] || 'User'}!
+            </h2>
+            <p className="text-gray-600">
+              Track your shifts and manage your work hours efficiently.
+            </p>
+          </div>
+
+          <ClockInOut />
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
-  );
+  )
 }
