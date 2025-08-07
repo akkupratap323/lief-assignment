@@ -1,4 +1,5 @@
-import type { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { auth0 } from "./lib/auth0";
 
 export async function middleware(request: NextRequest) {
@@ -11,7 +12,7 @@ export async function middleware(request: NextRequest) {
       const response = NextResponse.next();
       // Clear Auth0 cookies that might be corrupted
       response.cookies.delete('auth0.session');
-      response.cookies.delete('auth0.is');
+      response.cookies.delete('auth0.is'); 
       response.cookies.delete('a0_state');
       return response;
     }
