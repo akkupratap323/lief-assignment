@@ -131,9 +131,16 @@ GOOGLE_CLIENT_SECRET=
 
 **Auth0 Setup Steps:**
 1. Create Auth0 application (Regular Web Application)
-2. Add to Allowed Callback URLs: `http://localhost:3000/auth/callback`
-3. Add to Allowed Logout URLs: `http://localhost:3000`
-4. Copy domain, client ID, and client secret to .env.local
+2. Configure URLs in Auth0 Dashboard:
+   - **Allowed Callback URLs**: `http://localhost:3000/auth/callback`
+   - **Allowed Logout URLs**: `http://localhost:3000`
+   - **Initiate Login URI**: Leave EMPTY (Auth0 validation requires HTTPS)
+3. Copy domain, client ID, and client secret to .env.local
+
+**Auth0 Development Notes:**
+- Leave "Initiate Login URI" empty to avoid HTTPS validation errors
+- Auth0 will automatically handle login flow without explicit initiate URI
+- For production, use HTTPS URLs for all Auth0 configuration
 
 ## Development Workflow
 
