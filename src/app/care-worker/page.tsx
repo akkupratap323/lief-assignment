@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import ClockInOut from '@/components/ClockInOut'
+import GeofencingManager from '@/components/GeofencingManager'
 import { GET_ME, GET_CURRENT_SHIFT, GET_MY_SHIFTS } from '@/lib/graphql/queries'
 import { Clock, History, ArrowLeft, User, Calendar } from 'lucide-react'
 import Link from 'next/link'
@@ -191,6 +192,19 @@ export default function CareWorkerPortal() {
             </div>
 
             <ClockInOut />
+
+            {/* Smart Location Tracking */}
+            <GeofencingManager
+              userId={userData?.me?.id}
+              onLocationUpdate={(location) => {
+                // Handle location updates if needed
+                console.log('Location updated:', location)
+              }}
+              onPerimeterChange={(isInside, organizationNames) => {
+                // Handle perimeter changes if needed
+                console.log('Perimeter status:', { isInside, organizationNames })
+              }}
+            />
 
             {/* Current Shift Info */}
             {isCurrentlyWorking && currentShift && (

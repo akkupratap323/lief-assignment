@@ -17,11 +17,13 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - api/auth (auth routes) 
      * - api/graphql (GraphQL endpoint)
+     * - auth (custom auth pages)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      * - / (home page - allow access without auth)
+     * - /tutorial (tutorial page - allow access without auth)
      */
-    "/((?!api/auth|api/graphql|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|$).*)"
+    "/((?!api/auth|api/graphql|auth|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|tutorial|$).*)"
   ]
 };

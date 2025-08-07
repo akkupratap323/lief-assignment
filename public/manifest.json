@@ -1,53 +1,124 @@
 {
-  "name": "Healthcare Shift Tracker",
-  "short_name": "Shift Tracker",
-  "description": "Track healthcare worker shifts with location-based clock in/out",
-  "theme_color": "#2563eb",
-  "background_color": "#ffffff",
+  "name": "HealthShift - Healthcare Workforce Manager",
+  "short_name": "HealthShift",
+  "description": "Intelligent healthcare workforce management with location-based tracking, offline support, and real-time notifications",
+  "theme_color": "#3b82f6",
+  "background_color": "#f8fafc",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "scope": "/",
   "start_url": "/",
+  "id": "/",
+  "categories": ["healthcare", "productivity", "business"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "HealthShift Desktop Home"
+    },
+    {
+      "src": "/screenshots/mobile-clockin.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Clock In"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Clock In/Out",
+      "short_name": "Clock",
+      "description": "Quick access to clock in/out",
+      "url": "/care-worker",
+      "icons": [
+        {
+          "src": "icons/shortcut-clock.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Manager Dashboard",
+      "short_name": "Manager",
+      "description": "Access manager dashboard",
+      "url": "/manager",
+      "icons": [
+        {
+          "src": "icons/shortcut-manager.png",
+          "sizes": "192x192", 
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Tutorial",
+      "short_name": "Help",
+      "description": "View application tutorial",
+      "url": "/tutorial",
+      "icons": [
+        {
+          "src": "icons/shortcut-help.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "icons/icon-72x72.png",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-152x152.png",
       "sizes": "152x152",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

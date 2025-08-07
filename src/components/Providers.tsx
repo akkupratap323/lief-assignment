@@ -5,6 +5,7 @@ import { ApolloProvider } from '@apollo/client'
 import { apolloClient } from '@/lib/apollo-client'
 import { AppProvider } from '@/contexts/AppContext'
 import { ToastProvider } from '@/contexts/ToastContext'
+import PWAInstallPrompt from '@/components/PWAInstallPrompt'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -17,6 +18,7 @@ export function Providers({ children }: ProvidersProps) {
         <AppProvider>
           <ToastProvider>
             {children}
+            <PWAInstallPrompt />
           </ToastProvider>
         </AppProvider>
       </ApolloProvider>
