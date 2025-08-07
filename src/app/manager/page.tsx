@@ -212,32 +212,42 @@ export default function ManagerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
+                  Back to Home
                 </Button>
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Manager Dashboard
-              </h1>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Users className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Manager Dashboard
+                </h1>
+              </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
-                  {userData.me.name || userData.me.email}
-                </span>
-                <Badge variant="secondary">
-                  Manager
-                </Badge>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-sm font-medium text-gray-900">
+                    {userData.me.name || userData.me.email}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Manager Access
+                  </div>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                  <Settings className="h-5 w-5 text-blue-600" />
+                </div>
               </div>
-              <Button variant="ghost" onClick={() => signOut()}>
+              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900">
                 Sign Out
               </Button>
             </div>
@@ -246,38 +256,38 @@ export default function ManagerDashboard() {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4">
+      <div className="bg-white/70 backdrop-blur-sm border-b border-white/20">
+        <div className="container mx-auto px-6">
           <nav className="flex space-x-8">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === 'overview'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'border-blue-500 text-blue-600 bg-blue-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+              } rounded-t-lg`}
             >
               <BarChart3 className="inline mr-2 h-4 w-4" />
               Overview & Analytics
             </button>
             <button
               onClick={() => setActiveTab('staff')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === 'staff'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'border-green-500 text-green-600 bg-green-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+              } rounded-t-lg`}
             >
               <Users className="inline mr-2 h-4 w-4" />
               Staff Management
             </button>
             <button
               onClick={() => setActiveTab('locations')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === 'locations'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'border-purple-500 text-purple-600 bg-purple-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+              } rounded-t-lg`}
             >
               <MapPin className="inline mr-2 h-4 w-4" />
               Location Management
@@ -286,45 +296,60 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 py-8">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Currently Clocked In</CardTitle>
+              <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-800">Currently Clocked In</CardTitle>
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
+                      <Users className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-blue-600">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">
                     {activeShiftsData?.allActiveShifts?.length || 0}
                   </div>
-                  <p className="text-sm text-gray-500">Active staff members</p>
+                  <p className="text-sm text-gray-600">Active staff members</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Daily Clock-ins</CardTitle>
+              <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-800">Daily Clock-ins</CardTitle>
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                      <Clock className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-green-600">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-1">
                     {statsData?.dashboardStats?.dailyClockIns || 0}
                   </div>
-                  <p className="text-sm text-gray-500">Today</p>
+                  <p className="text-sm text-gray-600">Today's total</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Avg Hours/Day</CardTitle>
+              <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-800">Avg Hours/Day</CardTitle>
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                      <BarChart3 className="h-6 w-6 text-purple-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-purple-600">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">
                     {statsData?.dashboardStats?.avgHoursPerDay?.toFixed(1) || '0.0'}
                   </div>
-                  <p className="text-sm text-gray-500">Per staff member</p>
+                  <p className="text-sm text-gray-600">Per staff member</p>
                 </CardContent>
               </Card>
             </div>
@@ -333,12 +358,19 @@ export default function ManagerDashboard() {
             <StatsCharts stats={statsData?.dashboardStats} />
 
             {/* Currently Active Shifts */}
-            <Card>
+            <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Currently Clocked In Staff</CardTitle>
-                <CardDescription>
-                  Real-time view of staff members currently on shift
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center">
+                    <Users className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-800">Currently Clocked In Staff</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Real-time view of staff members currently on shift
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {activeShiftsLoading ? (
@@ -390,12 +422,19 @@ export default function ManagerDashboard() {
         {/* Staff Management Tab */}
         {activeTab === 'staff' && (
           <div className="space-y-8">
-            <Card>
+            <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>All Staff Clock-in/out Records</CardTitle>
-                <CardDescription>
-                  Detailed view of all staff shifts and work hours
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-800">All Staff Clock-in/out Records</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Detailed view of all staff shifts and work hours
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {allShiftsLoading ? (
@@ -458,15 +497,19 @@ export default function ManagerDashboard() {
         {activeTab === 'locations' && (
           <div className="space-y-8">
             {/* Add New Organization */}
-            <Card>
+            <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Add New Location
-                </CardTitle>
-                <CardDescription>
-                  Set up a new location with geofence perimeter for staff clock-ins
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                    <Plus className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-800">Add New Location</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Set up a new location with geofence perimeter for staff clock-ins
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleCreateOrganization} className="grid grid-cols-2 gap-4">
@@ -553,15 +596,19 @@ export default function ManagerDashboard() {
             </Card>
 
             {/* Existing Organizations */}
-            <Card>
+            <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Manage Existing Locations
-                </CardTitle>
-                <CardDescription>
-                  View and edit location perimeters for clock-in validation
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
+                    <Settings className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-800">Manage Existing Locations</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      View and edit location perimeters for clock-in validation
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>

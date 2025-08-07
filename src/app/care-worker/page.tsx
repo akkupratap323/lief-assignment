@@ -71,32 +71,42 @@ export default function CareWorkerPortal() {
   const isCurrentlyWorking = currentShift?.status === 'CLOCKED_IN'
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back
+                  Back to Home
                 </Button>
               </Link>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Care Worker Portal
-              </h1>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <Clock className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  Care Worker Portal
+                </h1>
+              </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
-                  {userData.me.name || userData.me.email}
-                </span>
-                <Badge variant="secondary">
-                  Care Worker
-                </Badge>
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-sm font-medium text-gray-900">
+                    {userData.me.name || userData.me.email}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    Care Worker
+                  </div>
+                </div>
+                <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
+                  <User className="h-5 w-5 text-green-600" />
+                </div>
               </div>
-              <Button variant="ghost" onClick={() => signOut()}>
+              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900">
                 Sign Out
               </Button>
             </div>
@@ -106,12 +116,12 @@ export default function CareWorkerPortal() {
 
       {/* Status Banner */}
       {isCurrentlyWorking && (
-        <div className="bg-green-50 border-b border-green-200">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center gap-2 text-green-800">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="font-medium">Currently Clocked In</span>
-              <span className="text-sm">
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200/50 backdrop-blur-sm">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse shadow-lg"></div>
+              <span className="font-semibold text-green-800">Currently Clocked In</span>
+              <span className="text-sm text-green-700 bg-white/60 px-3 py-1 rounded-full">
                 at {currentShift?.organization?.name} since{' '}
                 {new Date(currentShift?.clockInTime).toLocaleString()}
               </span>
@@ -121,38 +131,38 @@ export default function CareWorkerPortal() {
       )}
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4">
+      <div className="bg-white/70 backdrop-blur-sm border-b border-white/20">
+        <div className="container mx-auto px-6">
           <nav className="flex space-x-8">
             <button
               onClick={() => setActiveTab('clock-in')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === 'clock-in'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'border-green-500 text-green-600 bg-green-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+              } rounded-t-lg`}
             >
               <Clock className="inline mr-2 h-4 w-4" />
               Clock In/Out
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === 'history'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'border-blue-500 text-blue-600 bg-blue-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+              } rounded-t-lg`}
             >
               <History className="inline mr-2 h-4 w-4" />
               My History
             </button>
             <button
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
                 activeTab === 'profile'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'border-purple-500 text-purple-600 bg-purple-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
+              } rounded-t-lg`}
             >
               <User className="inline mr-2 h-4 w-4" />
               My Profile
@@ -161,18 +171,21 @@ export default function CareWorkerPortal() {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-6 py-8">
         {/* Clock In/Out Tab */}
         {activeTab === 'clock-in' && (
-          <div className="max-w-2xl mx-auto space-y-8">
+          <div className="max-w-3xl mx-auto space-y-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Welcome, {userData.me.name?.split(' ')[0] || 'User'}!
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+                Welcome back,
+                <span className="block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  {userData.me.name?.split(' ')[0] || 'User'}!
+                </span>
               </h2>
-              <p className="text-gray-600">
+              <p className="text-lg text-gray-600 max-w-lg mx-auto">
                 {isCurrentlyWorking 
-                  ? 'You are currently clocked in. Clock out when your shift ends.'
-                  : 'Select your location and clock in to start your shift.'
+                  ? 'You are currently clocked in. Clock out when your shift ends to record your work hours.'
+                  : 'Select your work location and clock in to start tracking your shift.'
                 }
               </p>
             </div>
@@ -181,12 +194,17 @@ export default function CareWorkerPortal() {
 
             {/* Current Shift Info */}
             {isCurrentlyWorking && currentShift && (
-              <Card>
+              <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Current Shift Details
-                  </CardTitle>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-green-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-semibold text-gray-800">Current Shift Details</CardTitle>
+                      <CardDescription className="text-gray-600">Active shift information and status</CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -223,13 +241,20 @@ export default function CareWorkerPortal() {
 
         {/* History Tab */}
         {activeTab === 'history' && (
-          <div className="space-y-6">
-            <Card>
+          <div className="space-y-8">
+            <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>My Shift History</CardTitle>
-                <CardDescription>
-                  View all your previous clock-in and clock-out records
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+                    <History className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-800">My Shift History</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      View all your previous clock-in and clock-out records
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 {userShifts.length === 0 ? (
@@ -291,39 +316,54 @@ export default function CareWorkerPortal() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Total Shifts</CardTitle>
+              <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-800">Total Shifts</CardTitle>
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
+                      <Calendar className="h-6 w-6 text-blue-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-blue-600">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">
                     {userShifts.length}
                   </div>
-                  <p className="text-sm text-gray-500">All time</p>
+                  <p className="text-sm text-gray-600">All time record</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Hours This Month</CardTitle>
+              <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-800">Hours This Month</CardTitle>
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                      <Clock className="h-6 w-6 text-green-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-green-600">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-1">
                     {userShifts
                       .filter((shift: any) => shift.totalHours && new Date(shift.clockInTime).getMonth() === new Date().getMonth())
                       .reduce((total: number, shift: any) => total + shift.totalHours, 0)
                       .toFixed(1)}
                   </div>
-                  <p className="text-sm text-gray-500">Hours worked</p>
+                  <p className="text-sm text-gray-600">Hours worked</p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">Average Shift</CardTitle>
+              <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-gray-800">Average Shift</CardTitle>
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                      <History className="h-6 w-6 text-purple-600" />
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-3xl font-bold text-purple-600">
+                  <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-1">
                     {userShifts.length > 0 
                       ? (userShifts
                           .filter((shift: any) => shift.totalHours)
@@ -333,7 +373,7 @@ export default function CareWorkerPortal() {
                       : '0.0'
                     }
                   </div>
-                  <p className="text-sm text-gray-500">Hours per shift</p>
+                  <p className="text-sm text-gray-600">Hours per shift</p>
                 </CardContent>
               </Card>
             </div>
@@ -342,16 +382,20 @@ export default function CareWorkerPortal() {
 
         {/* Profile Tab */}
         {activeTab === 'profile' && (
-          <div className="max-w-2xl mx-auto">
-            <Card>
+          <div className="max-w-3xl mx-auto">
+            <Card className="border-0 shadow-xl bg-white/70 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  My Profile
-                </CardTitle>
-                <CardDescription>
-                  Your account information and preferences
-                </CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                    <User className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-semibold text-gray-800">My Profile</CardTitle>
+                    <CardDescription className="text-gray-600">
+                      Your account information and preferences
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
