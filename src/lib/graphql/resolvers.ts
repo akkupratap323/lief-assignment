@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma'
-import { getSession } from '@auth0/nextjs-auth0'
+import { getSession } from '@auth0/nextjs-auth0/server'
 import { GraphQLScalarType, Kind } from 'graphql'
 
 const dateTimeScalar = new GraphQLScalarType({

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { UserProvider } from '@auth0/nextjs-auth0';
 import { ApolloProvider } from '@apollo/client';
 import { apolloClient } from '@/lib/apollo-client';
 import { AppProvider } from '@/contexts/AppContext';
