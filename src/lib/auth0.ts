@@ -1,3 +1,3 @@
-import { UserProvider } from '@auth0/nextjs-auth0';
+import { Auth0Provider } from '@auth0/nextjs-auth0';
 
-export { UserProvider };
+export { Auth0Provider };
