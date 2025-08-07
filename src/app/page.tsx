@@ -72,7 +72,7 @@ export default function Home() {
               <Link href="/tutorial">
                 <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-2">
                   <BarChart className="mr-2 h-5 w-5" />
-                  View Demo
+                  Tutorial
                 </Button>
               </Link>
             </div>
@@ -381,10 +381,12 @@ export default function Home() {
                     View Tutorial
                   </Button>
                 </Link>
-                <Button variant="ghost" className="px-6 py-2 text-gray-600">
-                  <Users className="mr-2 h-4 w-4" />
-                  Contact Support
-                </Button>
+                <Link href="/tutorial">
+                  <Button variant="ghost" className="px-6 py-2 text-gray-600">
+                    <BarChart className="mr-2 h-4 w-4" />
+                    Tutorial
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
