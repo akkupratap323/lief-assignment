@@ -95,26 +95,45 @@ UserProvider (Auth0)
 
 ## Environment Configuration
 
+**Setting up Environment Variables:**
+
+1. Copy `.env.example` to `.env.local`
+2. Generate secrets:
+   ```bash
+   # Generate AUTH0_SECRET (32-byte hex)
+   openssl rand -hex 32
+   
+   # Generate NEXTAUTH_SECRET (32-byte hex)
+   openssl rand -hex 32
+   ```
+
 **Required Environment Variables:**
 ```env
-# Auth0 (primary authentication)
-AUTH0_SECRET=
+# Auth0 Configuration (v4.9.0 format)
+AUTH0_SECRET=your-32-byte-hex-secret
 AUTH0_BASE_URL=http://localhost:3000
-AUTH0_ISSUER_BASE_URL=
-AUTH0_CLIENT_ID=
-AUTH0_CLIENT_SECRET=
-
-# Google OAuth (optional)
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
+AUTH0_ISSUER_BASE_URL=https://your-auth0-domain.auth0.com
+AUTH0_CLIENT_ID=your-auth0-client-id
+AUTH0_CLIENT_SECRET=your-auth0-client-secret
+APP_BASE_URL=http://localhost:3000
 
 # Database
 DATABASE_URL=postgresql://...
 
 # Next.js
 NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=
+NEXTAUTH_SECRET=your-32-byte-hex-secret
+
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 ```
+
+**Auth0 Setup Steps:**
+1. Create Auth0 application (Regular Web Application)
+2. Add to Allowed Callback URLs: `http://localhost:3000/auth/callback`
+3. Add to Allowed Logout URLs: `http://localhost:3000`
+4. Copy domain, client ID, and client secret to .env.local
 
 ## Development Workflow
 
