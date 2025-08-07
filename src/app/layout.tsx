@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Auth0Provider } from '@auth0/nextjs-auth0';
-import { ApolloProvider } from '@apollo/client';
-import { apolloClient } from '@/lib/apollo-client';
-import { AppProvider } from '@/contexts/AppContext';
+import { Providers } from '@/components/Providers';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,13 +52,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Auth0Provider>
-          <ApolloProvider client={apolloClient}>
-            <AppProvider>
-              {children}
-            </AppProvider>
-          </ApolloProvider>
-        </Auth0Provider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
