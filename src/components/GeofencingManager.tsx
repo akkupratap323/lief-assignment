@@ -48,8 +48,8 @@ export default function GeofencingManager({
       
       if (onPerimeterChange) {
         const orgNames = organizations
-          .filter(org => perimetersInside.includes(org.id))
-          .map(org => org.name)
+          .filter((org: any) => perimetersInside.includes(org.id))
+          .map((org: any) => org.name)
         onPerimeterChange(true, orgNames)
       }
     },
@@ -60,8 +60,8 @@ export default function GeofencingManager({
       
       if (onPerimeterChange) {
         const orgNames = organizations
-          .filter(org => perimetersInside.includes(org.id))
-          .map(org => org.name)
+          .filter((org: any) => perimetersInside.includes(org.id))
+          .map((org: any) => org.name)
         onPerimeterChange(orgNames.length > 0, orgNames)
       }
     }
@@ -123,7 +123,7 @@ export default function GeofencingManager({
     )
   }
 
-  const currentPerimeterOrgs = organizations.filter(org => 
+  const currentPerimeterOrgs = organizations.filter((org: any) => 
     perimetersInside.includes(org.id)
   )
 
@@ -187,7 +187,7 @@ export default function GeofencingManager({
             <CheckCircle2 className="h-4 w-4" />
             <AlertDescription>
               <strong>You're inside work area:</strong>{' '}
-              {currentPerimeterOrgs.map(org => org.name).join(', ')}
+              {currentPerimeterOrgs.map((org: any) => org.name).join(', ')}
             </AlertDescription>
           </Alert>
         )}
@@ -248,7 +248,7 @@ export default function GeofencingManager({
           <div>
             <h4 className="font-medium text-sm text-gray-700 mb-3">Monitored Locations</h4>
             <div className="space-y-2">
-              {organizations.map((org) => (
+              {organizations.map((org: any) => (
                 <div 
                   key={org.id}
                   className={`flex items-center justify-between p-3 rounded-lg border ${

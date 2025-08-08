@@ -130,19 +130,7 @@ class LocationService {
               tag,
               icon: '/icons/icon-192x192.png',
               badge: '/icons/icon-72x72.png',
-              vibrate: [200, 100, 200],
               requireInteraction: true,
-              actions: [
-                {
-                  action: 'open-app',
-                  title: 'Open HealthShift',
-                  icon: '/icons/icon-72x72.png'
-                },
-                {
-                  action: 'dismiss',
-                  title: 'Dismiss'
-                }
-              ],
               data: {
                 url: '/care-worker',
                 timestamp: Date.now()
@@ -157,7 +145,6 @@ class LocationService {
           body,
           tag,
           icon: '/icons/icon-192x192.png',
-          vibrate: [200, 100, 200],
           requireInteraction: true
         })
 

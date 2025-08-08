@@ -8,9 +8,7 @@ const withPWA = require('next-pwa')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  experimental: {
-    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
-  },
+  serverExternalPackages: ['prisma', '@prisma/client'],
   webpack: (config) => {
     config.externals.push({
       'prisma': 'prisma',

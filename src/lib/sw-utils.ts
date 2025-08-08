@@ -55,8 +55,8 @@ export const scheduleBackgroundSync = async (tag: string, data: SyncData) => {
       
       localStorage.setItem(`sync_${tag}_${syncData.id}`, JSON.stringify(syncData))
       
-      // Schedule background sync
-      await registration.sync.register(tag)
+      // Schedule background sync (if supported)
+      await (registration as any).sync?.register(tag)
       
       console.log('Background sync scheduled:', tag)
       return syncData.id
@@ -78,7 +78,7 @@ export const subscribeToPushNotifications = async (): Promise<PushSubscription |
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
           process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''
-        )
+        ) as BufferSource
       })
       
       console.log('Push subscription created:', subscription)
