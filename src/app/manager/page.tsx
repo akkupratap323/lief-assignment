@@ -37,6 +37,7 @@ export default function ManagerDashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [orgToDelete, setOrgToDelete] = useState<any>(null)
   const [gettingLocation, setGettingLocation] = useState(false)
+  const [showAccessOverlay, setShowAccessOverlay] = useState(true)
 
   const { data: userData, loading: userLoading } = useQuery(GET_ME, { skip: !user })
   const { data: activeShiftsData, loading: activeShiftsLoading } = useQuery(GET_ALL_ACTIVE_SHIFTS, { skip: !user })
@@ -53,6 +54,17 @@ export default function ManagerDashboard() {
       router.push('/api/auth/signin')
     }
   }, [authLoading, user, router])
+
+  // Hide access overlay after 4 seconds
+  useEffect(() => {
+    if (userData?.me?.role === 'MANAGER' && showAccessOverlay) {
+      const timer = setTimeout(() => {
+        setShowAccessOverlay(false)
+      }, 4000)
+      
+      return () => clearTimeout(timer)
+    }
+  }, [userData?.me?.role, showAccessOverlay])
 
   const handleCreateOrganization = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -213,6 +225,29 @@ export default function ManagerDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Access Notification Overlay */}
+      {showAccessOverlay && userData?.me?.role === 'MANAGER' && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] animate-in fade-in duration-300">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8 max-w-md mx-4 animate-in zoom-in duration-500">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="h-8 w-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                Manager Access Verified
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                Welcome to the Manager Dashboard. This page is exclusively accessible to registered managers with authorized credentials.
+              </p>
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <span>Loading your dashboard...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
