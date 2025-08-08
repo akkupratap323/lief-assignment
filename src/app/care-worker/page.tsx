@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import ClockInOut from '@/components/ClockInOut'
 import GeofencingManager from '@/components/GeofencingManager'
 import { GET_ME, GET_CURRENT_SHIFT, GET_MY_SHIFTS } from '@/lib/graphql/queries'
-import { Clock, History, ArrowLeft, User, Calendar } from 'lucide-react'
+import { Clock, History, ArrowLeft, User, Calendar, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function CareWorkerPortal() {
@@ -51,17 +51,61 @@ export default function CareWorkerPortal() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-600">Access Required</CardTitle>
+            <CardTitle className="text-green-600">Sign In Required</CardTitle>
             <CardDescription>
               Please sign in to access the Care Worker Portal.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <Link href="/api/auth/signin">
-              <Button className="w-full">
-                Sign In
+              <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600">
+                Sign In to Continue
               </Button>
             </Link>
+            <Link href="/">
+              <Button variant="outline" className="w-full">
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Home
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Allow access to both CARE_WORKERs and MANAGERs
+  const isManager = userData.me.role === 'MANAGER'
+  const isCareWorker = userData.me.role === 'CARE_WORKER'
+  
+  if (!isManager && !isCareWorker) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-lg">
+          <CardHeader>
+            <CardTitle className="text-amber-600">Access Not Available</CardTitle>
+            <CardDescription>
+              Your account doesn't have the required permissions to access the Care Worker Portal.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-amber-50 rounded-lg">
+              <p className="text-sm text-amber-800">
+                <strong>Current Role:</strong> {userData.me.role}<br />
+                <strong>Required:</strong> Care Worker or Manager access
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/" className="flex-1">
+                <Button variant="outline" className="w-full">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Contact your administrator for proper role assignment.
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -101,7 +145,7 @@ export default function CareWorkerPortal() {
                     {userData.me.name || userData.me.email}
                   </div>
                   <div className="text-xs text-gray-500">
-                    Care Worker
+                    {isManager ? 'Manager (Care Portal)' : 'Care Worker'}
                   </div>
                 </div>
                 <div className="w-10 h-10 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
@@ -192,12 +236,25 @@ export default function CareWorkerPortal() {
                   {userData.me.name?.split(' ')[0] || userData.me.email?.split('@')[0] || 'User'}!
                 </span>
               </h2>
-              <p className="text-base sm:text-lg text-gray-600 max-w-lg mx-auto px-4">
+              <p className="text-base sm:text-lg text-gray-600 max-w-lg mx-auto px-4 mb-4">
                 {isCurrentlyWorking 
                   ? 'You are currently clocked in. Clock out when your shift ends to record your work hours.'
                   : 'Select your work location and clock in to start tracking your shift.'
                 }
               </p>
+              {isManager && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-lg mx-auto">
+                  <p className="text-sm text-blue-800 mb-3">
+                    <strong>Manager Access:</strong> You're viewing the Care Worker Portal. You can also access advanced management features.
+                  </p>
+                  <Link href="/manager">
+                    <Button variant="outline" size="sm" className="border-blue-300 text-blue-700 hover:bg-blue-100">
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Go to Manager Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
 
             <ClockInOut />

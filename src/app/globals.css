@@ -120,3 +120,144 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Enhanced Responsive Design */
+@layer utilities {
+  /* Responsive containers */
+  .responsive-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* Responsive text sizes */
+  .responsive-text-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .responsive-text-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .responsive-text-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .responsive-text-lg {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .responsive-text-xl {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  .responsive-text-2xl {
+    @apply text-2xl sm:text-3xl md:text-4xl;
+  }
+  
+  .responsive-text-3xl {
+    @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl;
+  }
+  
+  /* Responsive spacing */
+  .responsive-gap {
+    @apply gap-2 sm:gap-4;
+  }
+  
+  .responsive-gap-lg {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+  
+  .responsive-padding {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .responsive-padding-x {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  .responsive-padding-y {
+    @apply py-4 sm:py-6 lg:py-8;
+  }
+  
+  /* Responsive buttons */
+  .responsive-button {
+    @apply px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base;
+  }
+  
+  .responsive-button-lg {
+    @apply px-4 sm:px-6 py-3 sm:py-4 text-base sm:text-lg;
+  }
+  
+  /* Hide/show responsive elements */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  .tablet-up {
+    @apply hidden md:block;
+  }
+  
+  /* Responsive grid layouts */
+  .responsive-grid-1-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6;
+  }
+  
+  .responsive-grid-1-2-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+  
+  .responsive-grid-auto {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-auto gap-4;
+  }
+  
+  /* Responsive flexbox */
+  .responsive-flex-col {
+    @apply flex flex-col sm:flex-row gap-3 sm:gap-4;
+  }
+  
+  /* Responsive navigation */
+  .responsive-nav {
+    @apply flex space-x-2 sm:space-x-8 overflow-x-auto;
+  }
+  
+  .responsive-nav-item {
+    @apply py-3 sm:py-4 px-2 sm:px-3 text-xs sm:text-sm whitespace-nowrap;
+  }
+  
+  /* Responsive cards */
+  .responsive-card {
+    @apply p-4 sm:p-6 rounded-lg sm:rounded-xl;
+  }
+  
+  /* Responsive headers */
+  .responsive-header {
+    @apply px-4 sm:px-6 py-3 sm:py-4;
+  }
+  
+  /* Responsive icons */
+  .responsive-icon-sm {
+    @apply h-4 w-4 sm:h-5 sm:w-5;
+  }
+  
+  .responsive-icon {
+    @apply h-5 w-5 sm:h-6 sm:w-6;
+  }
+  
+  /* Scrollable containers on mobile */
+  .mobile-scroll {
+    @apply overflow-x-auto sm:overflow-x-visible;
+  }
+  
+  /* Responsive tables */
+  .responsive-table {
+    @apply min-w-full overflow-x-auto;
+  }
+  
+  /* Touch-friendly targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+}

@@ -24,7 +24,7 @@ export default function TutorialPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
+        <div className="responsive-container responsive-header">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <Link href="/">

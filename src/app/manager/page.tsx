@@ -274,6 +274,47 @@ export default function ManagerDashboard() {
     )
   }
 
+  // Allow access to managers, and provide guidance for care workers
+  if (userData.me.role !== 'MANAGER') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-lg">
+          <CardHeader>
+            <CardTitle className="text-amber-600">Manager Access Required</CardTitle>
+            <CardDescription>
+              You're signed in as a Care Worker. The Manager Dashboard requires manager-level access.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Welcome {userData.me.name || userData.me.email}!</strong><br />
+                You can access the Care Worker Portal to manage your shifts.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/care-worker" className="flex-1">
+                <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600">
+                  <Clock className="mr-2 h-4 w-4" />
+                  Go to Care Worker Portal
+                </Button>
+              </Link>
+              <Link href="/" className="flex-1">
+                <Button variant="outline" className="w-full">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Need manager access? Contact your administrator.
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Access Notification Overlay */}
@@ -450,6 +491,28 @@ export default function ManagerDashboard() {
 
             {/* Charts */}
             <StatsCharts stats={statsData?.dashboardStats} />
+
+            {/* Cross-Portal Navigation */}
+            <Card className="border-0 shadow-lg bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/30">
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-800 mb-1">
+                      Experience the Care Worker Interface
+                    </h3>
+                    <p className="text-sm text-green-700">
+                      Test the clock-in functionality and understand your staff's daily workflow
+                    </p>
+                  </div>
+                  <Link href="/care-worker">
+                    <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-100">
+                      <Clock className="mr-2 h-4 w-4" />
+                      Visit Care Worker Portal
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Currently Active Shifts */}
             <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">

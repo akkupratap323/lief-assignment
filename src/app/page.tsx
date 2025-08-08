@@ -31,47 +31,53 @@ export default function Home() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
-          <div className="container mx-auto px-6 py-4">
+          <div className="container mx-auto px-4 sm:px-6 py-4">
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Clock className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   HealthShift
                 </span>
               </div>
-              <Button variant="outline" onClick={() => signIn('google')} className="hidden sm:flex">
-                Sign In
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => signIn('google')} className="text-sm sm:text-base px-3 sm:px-4">
+                  Sign In
+                </Button>
+              </div>
             </div>
           </div>
         </header>
 
         {/* Hero Section */}
-        <section className="container mx-auto px-6 pt-20 pb-16 text-center">
+        <section className="container mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-12 sm:pb-16 text-center">
           <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h1 className="text-5xl sm:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
                 Healthcare Workforce
                 <span className="block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                   Made Simple
                 </span>
               </h1>
-              <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-600 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed px-4">
                 Streamline your healthcare team management with intelligent location-based shift tracking, 
                 real-time analytics, and seamless workflow automation.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              <Button size="lg" className="px-8 py-4 text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" onClick={() => signIn('google')}>
-                <Users className="mr-2 h-5 w-5" />
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-12 sm:mb-16 px-4">
+              <Button 
+                size="lg" 
+                className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 w-full sm:w-auto" 
+                onClick={() => signIn('google')}
+              >
+                <Users className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 Get Started Free
               </Button>
-              <Link href="/tutorial">
-                <Button variant="outline" size="lg" className="px-8 py-4 text-lg border-2">
-                  <BarChart className="mr-2 h-5 w-5" />
+              <Link href="/tutorial" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg border-2 w-full">
+                  <BarChart className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                   Tutorial
                 </Button>
               </Link>
@@ -291,14 +297,19 @@ export default function Home() {
 
           {/* Dashboard Cards */}
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Manager Card */}
-            <Card className="border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/70 backdrop-blur-sm cursor-pointer group hover:-translate-y-1" onClick={() => window.location.href = '/manager'}>
+            {/* Manager Card - Show for all users but indicate access level */}
+            <Card className={`border-0 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/70 backdrop-blur-sm cursor-pointer group hover:-translate-y-1 ${
+              userData?.me?.role !== 'MANAGER' ? 'opacity-75' : ''
+            }`} onClick={() => window.location.href = '/manager'}>
               <CardHeader className="pb-4">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-transform">
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
                 <CardTitle className="text-2xl font-bold text-center">
                   Manager Dashboard
+                  {userData?.me?.role !== 'MANAGER' && (
+                    <div className="text-xs font-normal text-amber-600 mt-1">Manager Access Required</div>
+                  )}
                 </CardTitle>
                 <CardDescription className="text-center text-gray-600 text-base">
                   Complete workforce management and analytics platform
@@ -323,8 +334,12 @@ export default function Home() {
                     <span>Generate comprehensive analytics and reports</span>
                   </div>
                 </div>
-                <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-3 text-base">
-                  Access Manager Dashboard
+                <Button className={`w-full py-3 text-base ${
+                  userData?.me?.role === 'MANAGER'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
+                    : 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                }`}>
+                  {userData?.me?.role === 'MANAGER' ? 'Access Manager Dashboard' : 'Manager Access Required'}
                 </Button>
               </CardContent>
             </Card>
@@ -337,9 +352,15 @@ export default function Home() {
                 </div>
                 <CardTitle className="text-2xl font-bold text-center">
                   Care Worker Portal
+                  {userData?.me?.role === 'MANAGER' && (
+                    <div className="text-xs font-normal text-blue-600 mt-1">Also Available to Managers</div>
+                  )}
                 </CardTitle>
                 <CardDescription className="text-center text-gray-600 text-base">
                   Streamlined shift management and time tracking
+                  {userData?.me?.role === 'MANAGER' && (
+                    <span className="block text-blue-600 text-sm mt-1">Experience the care worker interface</span>
+                  )}
                 </CardDescription>
               </CardHeader>
               <CardContent>
