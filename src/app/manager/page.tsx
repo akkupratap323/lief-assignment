@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { GET_ME, GET_ALL_ACTIVE_SHIFTS, GET_ALL_SHIFTS, GET_DASHBOARD_STATS, GET_ORGANIZATIONS } from '@/lib/graphql/queries'
-import { CREATE_ORGANIZATION, UPDATE_ORGANIZATION, DELETE_ORGANIZATION, UPDATE_USER_ROLE } from '@/lib/graphql/mutations'
+import { CREATE_ORGANIZATION, UPDATE_ORGANIZATION, DELETE_ORGANIZATION, UPDATE_USER_ROLE, PROMOTE_TO_MANAGER } from '@/lib/graphql/mutations'
 import { Clock, Users, BarChart3, ArrowLeft, MapPin, Plus, Settings, Edit, Trash2, X, Navigation } from 'lucide-react'
 import Link from 'next/link'
 import StatsCharts from '@/components/StatsCharts'
@@ -38,8 +38,9 @@ export default function ManagerDashboard() {
   const [orgToDelete, setOrgToDelete] = useState<any>(null)
   const [gettingLocation, setGettingLocation] = useState(false)
   const [showAccessOverlay, setShowAccessOverlay] = useState(true)
+  const [promoting, setPromoting] = useState(false)
 
-  const { data: userData, loading: userLoading } = useQuery(GET_ME, { skip: !user })
+  const { data: userData, loading: userLoading, refetch: refetchUserData } = useQuery(GET_ME, { skip: !user })
   const { data: activeShiftsData, loading: activeShiftsLoading } = useQuery(GET_ALL_ACTIVE_SHIFTS, { skip: !user })
   const { data: allShiftsData, loading: allShiftsLoading } = useQuery(GET_ALL_SHIFTS, { skip: !user })
   const { data: statsData, loading: statsLoading } = useQuery(GET_DASHBOARD_STATS, { skip: !user })
@@ -48,6 +49,7 @@ export default function ManagerDashboard() {
   const [createOrganization] = useMutation(CREATE_ORGANIZATION)
   const [updateOrganization] = useMutation(UPDATE_ORGANIZATION)
   const [deleteOrganization] = useMutation(DELETE_ORGANIZATION)
+  const [promoteToManager] = useMutation(PROMOTE_TO_MANAGER)
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -83,9 +85,9 @@ export default function ManagerDashboard() {
       setNewOrgForm({ name: '', address: '', latitude: '', longitude: '', radiusKm: '5.0' })
       refetchOrganizations()
       success('Organization created successfully!')
-    } catch (error: any) {
-      console.error('Error creating organization:', error)
-      error(error.message || 'Failed to create organization')
+    } catch (err: any) {
+      console.error('Error creating organization:', err)
+      error(err.message || 'Failed to create organization')
     }
   }
 
@@ -120,9 +122,9 @@ export default function ManagerDashboard() {
       setEditingOrg(null)
       refetchOrganizations()
       success('Organization updated successfully!')
-    } catch (error: any) {
-      console.error('Error updating organization:', error)
-      error(error.message || 'Failed to update organization')
+    } catch (err: any) {
+      console.error('Error updating organization:', err)
+      error(err.message || 'Failed to update organization')
     }
   }
 
@@ -135,15 +137,30 @@ export default function ManagerDashboard() {
       setOrgToDelete(null)
       refetchOrganizations()
       success('Organization deleted successfully!')
-    } catch (error: any) {
-      console.error('Error deleting organization:', error)
-      error(error.message || 'Failed to delete organization')
+    } catch (err: any) {
+      console.error('Error deleting organization:', err)
+      error(err.message || 'Failed to delete organization')
     }
   }
 
   const confirmDelete = (org: any) => {
     setOrgToDelete(org)
     setShowDeleteModal(true)
+  }
+
+  const handlePromoteToManager = async () => {
+    try {
+      setPromoting(true)
+      await promoteToManager()
+      // Force refetch user data
+      await refetchUserData()
+      success('Successfully promoted to Manager!')
+      window.location.reload() // Reload to update UI
+    } catch (err: any) {
+      error(err.message || 'Failed to promote to manager')
+    } finally {
+      setPromoting(false)
+    }
   }
 
   const getCurrentLocation = () => {
@@ -200,23 +217,57 @@ export default function ManagerDashboard() {
     )
   }
 
-  if (!userData?.me || userData.me.role !== 'MANAGER') {
+  // Allow access to managers, and provide guidance/promotion option for care workers
+  if (userData?.me?.role !== 'MANAGER') {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Card className="max-w-md">
+        <Card className="max-w-lg">
           <CardHeader>
-            <CardTitle className="text-red-600">Access Denied</CardTitle>
+            <CardTitle className="text-amber-600">Manager Access Required</CardTitle>
             <CardDescription>
-              This page is only accessible to managers. Please contact your administrator.
+              You're signed in as a Care Worker. The Manager Dashboard requires manager-level access.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Link href="/">
-              <Button variant="outline" className="w-full">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Home
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Welcome {userData?.me?.name || userData?.me?.email}!</strong><br />
+                You can access the Care Worker Portal to manage your shifts, or try promoting yourself to manager if no managers exist in the system.
+              </p>
+            </div>
+            
+            {/* Promotion Button */}
+            <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <p className="text-sm text-amber-800 mb-3">
+                <strong>Need Manager Access?</strong><br />
+                If no manager exists in the system, you can promote yourself to access administrative features.
+              </p>
+              <Button 
+                onClick={handlePromoteToManager}
+                disabled={promoting}
+                className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white mb-3"
+              >
+                {promoting ? 'Promoting...' : 'Become Manager'}
               </Button>
-            </Link>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/care-worker" className="flex-1">
+                <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600">
+                  <Clock className="mr-2 h-4 w-4" />
+                  Go to Care Worker Portal
+                </Button>
+              </Link>
+              <Link href="/" className="flex-1">
+                <Button variant="outline" className="w-full">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Contact your administrator if you need permanent manager access.
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -250,28 +301,29 @@ export default function ManagerDashboard() {
 
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Home
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 p-2 sm:px-3">
+                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back to Home</span>
                 </Button>
               </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Users className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Manager Dashboard
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <span className="hidden sm:inline">Manager Dashboard</span>
+                  <span className="sm:hidden">Dashboard</span>
                 </h1>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden sm:flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-gray-900 truncate max-w-32">
                     {userData.me.name || userData.me.email}
                   </div>
                   <div className="text-xs text-gray-500">
@@ -282,8 +334,12 @@ export default function ManagerDashboard() {
                   <Settings className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
-              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900">
-                Sign Out
+              <div className="sm:hidden w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                <Settings className="h-4 w-4 text-blue-600" />
+              </div>
+              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900 p-2 sm:px-3">
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden text-xs">Out</span>
               </Button>
             </div>
           </div>
@@ -292,51 +348,54 @@ export default function ManagerDashboard() {
 
       {/* Navigation Tabs */}
       <div className="bg-white/70 backdrop-blur-sm border-b border-white/20">
-        <div className="container mx-auto px-6">
-          <nav className="flex space-x-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <nav className="flex space-x-2 sm:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'overview'
                   ? 'border-blue-500 text-blue-600 bg-blue-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <BarChart3 className="inline mr-2 h-4 w-4" />
-              Overview & Analytics
+              <BarChart3 className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Overview & Analytics</span>
+              <span className="sm:hidden">Overview</span>
             </button>
             <button
               onClick={() => setActiveTab('staff')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'staff'
                   ? 'border-green-500 text-green-600 bg-green-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <Users className="inline mr-2 h-4 w-4" />
-              Staff Management
+              <Users className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Staff Management</span>
+              <span className="sm:hidden">Staff</span>
             </button>
             <button
               onClick={() => setActiveTab('locations')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'locations'
                   ? 'border-purple-500 text-purple-600 bg-purple-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <MapPin className="inline mr-2 h-4 w-4" />
-              Location Management
+              <MapPin className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Location Management</span>
+              <span className="sm:hidden">Locations</span>
             </button>
           </nav>
         </div>
       </div>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm hover:shadow-xl transition-shadow duration-300">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
@@ -415,16 +474,17 @@ export default function ManagerDashboard() {
                     No staff currently clocked in
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Staff Member</TableHead>
-                        <TableHead>Organization</TableHead>
-                        <TableHead>Clock In Time</TableHead>
-                        <TableHead>Duration</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Staff Member</TableHead>
+                          <TableHead>Organization</TableHead>
+                          <TableHead>Clock In Time</TableHead>
+                          <TableHead>Duration</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
                     <TableBody>
                       {activeShiftsData?.allActiveShifts?.map((shift: any) => (
                         <TableRow key={shift.id}>
@@ -448,6 +508,7 @@ export default function ManagerDashboard() {
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -475,19 +536,20 @@ export default function ManagerDashboard() {
                 {allShiftsLoading ? (
                   <div className="text-center py-4">Loading shift records...</div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Staff Member</TableHead>
-                        <TableHead>Organization</TableHead>
-                        <TableHead>Clock In</TableHead>
-                        <TableHead>Clock Out</TableHead>
-                        <TableHead>Total Hours</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {allShiftsData?.allShifts?.map((shift: any) => (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Staff Member</TableHead>
+                          <TableHead>Organization</TableHead>
+                          <TableHead>Clock In</TableHead>
+                          <TableHead>Clock Out</TableHead>
+                          <TableHead>Total Hours</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {allShiftsData?.allShifts?.map((shift: any) => (
                         <TableRow key={shift.id}>
                           <TableCell>
                             <div>
@@ -522,6 +584,7 @@ export default function ManagerDashboard() {
                       ))}
                     </TableBody>
                   </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -547,7 +610,7 @@ export default function ManagerDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleCreateOrganization} className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleCreateOrganization} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">Organization Name</Label>
                     <Input
@@ -567,7 +630,7 @@ export default function ManagerDashboard() {
                       placeholder="123 Healthcare Ave"
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     <div className="flex items-center justify-between mb-3">
                       <Label>Location Coordinates</Label>
                       <Button
@@ -582,7 +645,7 @@ export default function ManagerDashboard() {
                         {gettingLocation ? 'Getting Location...' : 'Use My Current Location'}
                       </Button>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="latitude">Latitude</Label>
                         <Input
@@ -646,17 +709,18 @@ export default function ManagerDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Organization Name</TableHead>
-                      <TableHead>Address</TableHead>
-                      <TableHead>Coordinates</TableHead>
-                      <TableHead>Perimeter (km)</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Organization Name</TableHead>
+                        <TableHead>Address</TableHead>
+                        <TableHead>Coordinates</TableHead>
+                        <TableHead>Perimeter (km)</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                     {organizationsData?.organizations?.map((org: any) => (
                       <TableRow key={org.id}>
                         <TableCell className="font-medium">{org.name}</TableCell>
@@ -687,6 +751,7 @@ export default function ManagerDashboard() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -695,8 +760,8 @@ export default function ManagerDashboard() {
 
       {/* Edit Organization Modal */}
       {showEditModal && editingOrg && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-md mx-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Edit Organization</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowEditModal(false)}>
@@ -723,7 +788,7 @@ export default function ManagerDashboard() {
                   placeholder="123 Healthcare Ave"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="edit-latitude">Latitude</Label>
                   <Input
@@ -776,8 +841,8 @@ export default function ManagerDashboard() {
 
       {/* Delete Organization Modal */}
       {showDeleteModal && orgToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 sm:p-6 rounded-lg w-full max-w-md mx-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">Delete Organization</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)}>

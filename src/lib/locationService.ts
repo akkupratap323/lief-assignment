@@ -31,11 +31,14 @@ class LocationService {
   private readonly NOTIFICATION_COOLDOWN = 5 * 60 * 1000 // 5 minutes
 
   constructor() {
-    this.requestNotificationPermission()
+    // Only request notification permission on client side
+    if (typeof window !== 'undefined') {
+      this.requestNotificationPermission()
+    }
   }
 
   private async requestNotificationPermission() {
-    if ('Notification' in window && 'serviceWorker' in navigator) {
+    if (typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator) {
       const permission = await Notification.requestPermission()
       if (permission === 'granted') {
         console.log('Notification permission granted')
@@ -119,7 +122,7 @@ class LocationService {
   }
 
   private async showNotification(title: string, body: string, tag: string) {
-    if ('Notification' in window && Notification.permission === 'granted') {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
       try {
         // Try to use service worker registration for better support
         if ('serviceWorker' in navigator) {
@@ -149,11 +152,13 @@ class LocationService {
         })
 
         notification.onclick = () => {
-          window.focus()
-          notification.close()
-          // Navigate to care worker page
-          if (window.location.pathname !== '/care-worker') {
-            window.location.href = '/care-worker'
+          if (typeof window !== 'undefined') {
+            window.focus()
+            notification.close()
+            // Navigate to care worker page
+            if (window.location.pathname !== '/care-worker') {
+              window.location.href = '/care-worker'
+            }
           }
         }
 

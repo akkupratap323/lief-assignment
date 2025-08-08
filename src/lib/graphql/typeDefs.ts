@@ -117,5 +117,6 @@ export const typeDefs = gql`
     updateOrganization(id: String!, input: UpdateOrganizationInput!): Organization!
     deleteOrganization(id: String!): Organization!
     updateUserRole(userId: String!, role: UserRole!): User!
+    promoteToManager: User!
   }
 `

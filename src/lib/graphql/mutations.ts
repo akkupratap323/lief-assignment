@@ -83,3 +83,14 @@ export const DELETE_ORGANIZATION = gql`
     }
   }
 `
+
+export const PROMOTE_TO_MANAGER = gql`
+  mutation PromoteToManager {
+    promoteToManager {
+      id
+      name
+      email
+      role
+    }
+  }
+`

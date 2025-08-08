@@ -75,28 +75,29 @@ export default function CareWorkerPortal() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Home
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 p-2 sm:px-3">
+                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back to Home</span>
                 </Button>
               </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <Clock className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  Care Worker Portal
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                  <span className="hidden sm:inline">Care Worker Portal</span>
+                  <span className="sm:hidden">Portal</span>
                 </h1>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden sm:flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-gray-900 truncate max-w-32">
                     {userData.me.name || userData.me.email}
                   </div>
                   <div className="text-xs text-gray-500">
@@ -107,8 +108,12 @@ export default function CareWorkerPortal() {
                   <User className="h-5 w-5 text-green-600" />
                 </div>
               </div>
-              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900">
-                Sign Out
+              <div className="sm:hidden w-8 h-8 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center">
+                <User className="h-4 w-4 text-green-600" />
+              </div>
+              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900 p-2 sm:px-3">
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden text-xs">Out</span>
               </Button>
             </div>
           </div>
@@ -118,13 +123,14 @@ export default function CareWorkerPortal() {
       {/* Status Banner */}
       {isCurrentlyWorking && (
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-200/50 backdrop-blur-sm">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center gap-3">
+          <div className="container mx-auto px-4 sm:px-6 py-4">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse shadow-lg"></div>
-              <span className="font-semibold text-green-800">Currently Clocked In</span>
-              <span className="text-sm text-green-700 bg-white/60 px-3 py-1 rounded-full">
-                at {currentShift?.organization?.name} since{' '}
-                {new Date(currentShift?.clockInTime).toLocaleString()}
+              <span className="font-semibold text-green-800 text-sm sm:text-base">Currently Clocked In</span>
+              <span className="text-xs sm:text-sm text-green-700 bg-white/60 px-2 sm:px-3 py-1 rounded-full">
+                <span className="hidden sm:inline">at {currentShift?.organization?.name} since </span>
+                <span className="sm:hidden">Since </span>
+                {new Date(currentShift?.clockInTime).toLocaleTimeString()}
               </span>
             </div>
           </div>
@@ -133,57 +139,60 @@ export default function CareWorkerPortal() {
 
       {/* Navigation Tabs */}
       <div className="bg-white/70 backdrop-blur-sm border-b border-white/20">
-        <div className="container mx-auto px-6">
-          <nav className="flex space-x-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <nav className="flex space-x-2 sm:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('clock-in')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'clock-in'
                   ? 'border-green-500 text-green-600 bg-green-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <Clock className="inline mr-2 h-4 w-4" />
-              Clock In/Out
+              <Clock className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Clock In/Out</span>
+              <span className="sm:hidden">Clock</span>
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'history'
                   ? 'border-blue-500 text-blue-600 bg-blue-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <History className="inline mr-2 h-4 w-4" />
-              My History
+              <History className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">My History</span>
+              <span className="sm:hidden">History</span>
             </button>
             <button
               onClick={() => setActiveTab('profile')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'profile'
                   ? 'border-purple-500 text-purple-600 bg-purple-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <User className="inline mr-2 h-4 w-4" />
-              My Profile
+              <User className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">My Profile</span>
+              <span className="sm:hidden">Profile</span>
             </button>
           </nav>
         </div>
       </div>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Clock In/Out Tab */}
         {activeTab === 'clock-in' && (
-          <div className="max-w-3xl mx-auto space-y-8">
-            <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <div className="max-w-3xl mx-auto space-y-6 sm:space-y-8">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                 Welcome back,
                 <span className="block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  {userData.me.name?.split(' ')[0] || 'User'}!
+                  {userData.me.name?.split(' ')[0] || userData.me.email?.split('@')[0] || 'User'}!
                 </span>
               </h2>
-              <p className="text-lg text-gray-600 max-w-lg mx-auto">
+              <p className="text-base sm:text-lg text-gray-600 max-w-lg mx-auto px-4">
                 {isCurrentlyWorking 
                   ? 'You are currently clocked in. Clock out when your shift ends to record your work hours.'
                   : 'Select your work location and clock in to start tracking your shift.'

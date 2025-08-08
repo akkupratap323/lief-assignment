@@ -38,10 +38,29 @@ export const resolvers = {
       const session = await getServerSession(authOptions)
       if (!session?.user) return null
       
-      return await prisma.user.findUnique({
+      let user = await prisma.user.findUnique({
         where: { auth0Id: session.user.email || '' },
         include: { shifts: true }
       })
+
+      // Auto-create user if they don't exist
+      if (!user) {
+        // Check if this is the first user in the system - make them a manager
+        const userCount = await prisma.user.count()
+        const role = userCount === 0 ? 'MANAGER' : 'CARE_WORKER'
+        
+        user = await prisma.user.create({
+          data: {
+            auth0Id: session.user.email || '',
+            email: session.user.email || '',
+            name: session.user.name || undefined,
+            role
+          },
+          include: { shifts: true }
+        })
+      }
+
+      return user
     },
 
     currentShift: async (_: any, __: any) => {
@@ -221,12 +240,16 @@ export const resolvers = {
       console.log('Found user:', user)
 
       if (!user) {
+        // Check if this is the first user in the system - make them a manager
+        const userCount = await prisma.user.count()
+        const role = userCount === 0 ? 'MANAGER' : 'CARE_WORKER'
+        
         user = await prisma.user.create({
           data: {
             auth0Id: session.user.email || '',
             email: session.user.email || '',
             name: session.user.name || undefined,
-            role: 'CARE_WORKER'
+            role
           }
         })
       }
@@ -423,6 +446,33 @@ export const resolvers = {
       return await prisma.organization.delete({
         where: { id }
       })
+    },
+
+    promoteToManager: async (_: any, __: any) => {
+      const session = await getServerSession(authOptions)
+      if (!session?.user) throw new Error('Not authenticated')
+
+      const user = await prisma.user.findUnique({
+        where: { auth0Id: session.user.email || '' }
+      })
+
+      if (!user) throw new Error('User not found')
+
+      // Check if there are any managers in the system
+      const managerCount = await prisma.user.count({
+        where: { role: 'MANAGER' }
+      })
+
+      // If no managers exist, allow this user to become a manager
+      if (managerCount === 0) {
+        return await prisma.user.update({
+          where: { id: user.id },
+          data: { role: 'MANAGER' },
+          include: { shifts: true }
+        })
+      } else {
+        throw new Error('A manager already exists. Only existing managers can promote other users.')
+      }
     }
   }
 }
