@@ -200,23 +200,69 @@ export default function ManagerDashboard() {
     )
   }
 
-  if (!userData?.me || userData.me.role !== 'MANAGER') {
+  if (!userData?.me) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-600">Access Denied</CardTitle>
+            <CardTitle className="text-blue-600">Sign In Required</CardTitle>
             <CardDescription>
-              This page is only accessible to managers. Please contact your administrator.
+              Please sign in to access the Manager Dashboard.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
+            <Link href="/api/auth/signin">
+              <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600">
+                Sign In to Continue
+              </Button>
+            </Link>
             <Link href="/">
               <Button variant="outline" className="w-full">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Back to Home
               </Button>
             </Link>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Allow access to managers, and provide guidance for care workers
+  if (userData.me.role !== 'MANAGER') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-lg">
+          <CardHeader>
+            <CardTitle className="text-amber-600">Manager Access Required</CardTitle>
+            <CardDescription>
+              You're signed in as a Care Worker. The Manager Dashboard requires manager-level access.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Welcome {userData.me.name || userData.me.email}!</strong><br />
+                You can access the Care Worker Portal to manage your shifts.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/care-worker" className="flex-1">
+                <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600">
+                  <Clock className="mr-2 h-4 w-4" />
+                  Go to Care Worker Portal
+                </Button>
+              </Link>
+              <Link href="/" className="flex-1">
+                <Button variant="outline" className="w-full">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Need manager access? Contact your administrator.
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -250,28 +296,29 @@ export default function ManagerDashboard() {
 
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-white/20 sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Home
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 p-2 sm:px-3">
+                  <ArrowLeft className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Back to Home</span>
                 </Button>
               </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                  <Users className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                  <Users className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Manager Dashboard
+                <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  <span className="hidden sm:inline">Manager Dashboard</span>
+                  <span className="sm:hidden">Dashboard</span>
                 </h1>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="hidden sm:flex items-center gap-3">
                 <div className="text-right">
-                  <div className="text-sm font-medium text-gray-900">
+                  <div className="text-sm font-medium text-gray-900 truncate max-w-32">
                     {userData.me.name || userData.me.email}
                   </div>
                   <div className="text-xs text-gray-500">
@@ -282,8 +329,12 @@ export default function ManagerDashboard() {
                   <Settings className="h-5 w-5 text-blue-600" />
                 </div>
               </div>
-              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900">
-                Sign Out
+              <div className="sm:hidden w-8 h-8 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
+                <Settings className="h-4 w-4 text-blue-600" />
+              </div>
+              <Button variant="ghost" onClick={() => signOut()} className="text-gray-600 hover:text-gray-900 p-2 sm:px-3">
+                <span className="hidden sm:inline">Sign Out</span>
+                <span className="sm:hidden text-xs">Out</span>
               </Button>
             </div>
           </div>
@@ -292,40 +343,43 @@ export default function ManagerDashboard() {
 
       {/* Navigation Tabs */}
       <div className="bg-white/70 backdrop-blur-sm border-b border-white/20">
-        <div className="container mx-auto px-6">
-          <nav className="flex space-x-8">
+        <div className="container mx-auto px-4 sm:px-6">
+          <nav className="flex space-x-2 sm:space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('overview')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'overview'
                   ? 'border-blue-500 text-blue-600 bg-blue-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <BarChart3 className="inline mr-2 h-4 w-4" />
-              Overview & Analytics
+              <BarChart3 className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Overview & Analytics</span>
+              <span className="sm:hidden">Overview</span>
             </button>
             <button
               onClick={() => setActiveTab('staff')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'staff'
                   ? 'border-green-500 text-green-600 bg-green-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <Users className="inline mr-2 h-4 w-4" />
-              Staff Management
+              <Users className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Staff Management</span>
+              <span className="sm:hidden">Staff</span>
             </button>
             <button
               onClick={() => setActiveTab('locations')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-2 sm:px-3 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'locations'
                   ? 'border-purple-500 text-purple-600 bg-purple-50/50'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50/50'
               } rounded-t-lg`}
             >
-              <MapPin className="inline mr-2 h-4 w-4" />
-              Location Management
+              <MapPin className="inline mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Location Management</span>
+              <span className="sm:hidden">Locations</span>
             </button>
           </nav>
         </div>
@@ -391,6 +445,28 @@ export default function ManagerDashboard() {
 
             {/* Charts */}
             <StatsCharts stats={statsData?.dashboardStats} />
+
+            {/* Cross-Portal Navigation */}
+            <Card className="border-0 shadow-lg bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/30">
+              <CardContent className="p-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-green-800 mb-1">
+                      Experience the Care Worker Interface
+                    </h3>
+                    <p className="text-sm text-green-700">
+                      Test the clock-in functionality and understand your staff's daily workflow
+                    </p>
+                  </div>
+                  <Link href="/care-worker">
+                    <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-100">
+                      <Clock className="mr-2 h-4 w-4" />
+                      Visit Care Worker Portal
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Currently Active Shifts */}
             <Card className="border-0 shadow-lg bg-white/70 backdrop-blur-sm">
